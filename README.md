@@ -1,0 +1,1 @@
+# kru-pai-english-adj-vocab-50-set2
