@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adjective Quiz 50 • Kru Pai Classroom</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F8FAFF;
+      --card:#FFFFFF;
+      --ink:#0F172A;
+      --muted:#64748B;
+      --brand:#2563EB;
+      --accent:#F59E0B;
+      --ok:#16A34A;
+      --bad:#DC2626;
+      --shadow: 0 8px 22px rgba(2,6,23,.08);
+      --radius: 20px;
+    }
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Prompt",sans-serif; display:flex; justify-content:center; min-height:100vh; padding:24px;}
+    .app{width:min(980px,100%);}
+    .brand{display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:18px;}
+    .logo{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--accent));box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:white;font:700 26px Fredoka;}
+    .title{font:700 26px "Fredoka",sans-serif;color:var(--brand)}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;}
+    .card.hero{text-align:center;}
+    h1{font:700 clamp(22px,4.2vw,34px) "Fredoka";margin:6px 0 10px;color:var(--brand)}
+    p.lead{color:var(--muted);font-size:18px}
+    input[type=text]{width:100%;padding:16px;border-radius:14px;border:2px solid #E2E8F0;font-size:18px;}
+    input[type=text]:focus{border-color:var(--brand);outline:none;}
+    .btn{cursor:pointer;border:none;border-radius:14px;padding:14px 20px;font:700 18px "Fredoka";transition:.2s}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--accent));color:white;box-shadow:0 6px 15px rgba(37,99,235,.3)}
+    .btn.secondary{background:#fff;color:var(--brand);border:2px solid var(--brand)}
+    .q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+    .badge{background:#EFF6FF;color:var(--brand);padding:6px 12px;border-radius:999px;font-weight:600}
+    .timer{font:700 18px Fredoka;color:var(--accent)}
+    .thai{font:700 clamp(22px,6vw,40px) "Fredoka";text-align:center;margin:12px 0 2px;color:#1E40AF}
+    .sub{text-align:center;color:#8a8a8a;margin-bottom:10px}
+    .choices{display:grid;gap:12px;grid-template-columns:1fr;}
+    @media(min-width:640px){.choices{grid-template-columns:1fr 1fr;}}
+    .choice{padding:14px;border:2px solid #E2E8F0;border-radius:14px;font:700 18px "Prompt";cursor:pointer;transition:.15s;background:#fff}
+    .choice.correct{border-color:var(--ok);background:#ECFDF5}
+    .choice.wrong{border-color:var(--bad);background:#FEF2F2}
+    .scoreBig{font:800 clamp(28px,7vw,48px) "Fredoka";color:var(--brand);text-align:center;margin:10px 0 0;}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <div class="logo">KP</div>
+    <div class="title">Kru Pai Classroom</div>
+  </div>
+
+  <section id="start" class="card hero">
+    <h1>✨ Adjective Quiz 50</h1>
+    <p class="lead">เลือกคำคุณศัพท์ภาษาอังกฤษที่ตรงกับคำไทย • โทนน้ำเงิน–ส้ม</p>
+    <input id="playerName" type="text" placeholder="พิมพ์ชื่อเล่นของคุณ" />
+    <br><br>
+    <button class="btn primary" onclick="goMenu()">▶️ เริ่ม</button>
+  </section>
+
+  <section id="game" class="card" style="display:none">
+    <div class="q-head">
+      <span class="badge" id="helloBadge">สวัสดี 🌟</span>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <span class="badge" id="progressText">ข้อ 1/50</span>
+        <span class="timer" id="timer">⏱️ 10</span>
+        <button class="btn secondary" onclick="resetAll()">🔁 เริ่มใหม่</button>
+      </div>
+    </div>
+
+    <div id="thaiWord" class="thai">…</div>
+    <div class="sub">เลือกคำตอบที่ถูกต้อง</div>
+    <div id="choices" class="choices"></div>
+  </section>
+
+  <section id="result" class="card" style="display:none; text-align:center">
+    <div class="scoreBig" id="scoreBig">คะแนนรวม</div>
+    <p id="summary"></p>
+    <br>
+    <button class="btn primary" onclick="resetAll()">🔁 เล่นใหม่</button>
+  </section>
+</div>
+
+<script>
+const DATA=[
+{th:"ใหญ่",en:"big"},{th:"เล็ก",en:"small"},{th:"สูง",en:"tall"},{th:"เตี้ย",en:"short"},{th:"ยาว",en:"long"},
+{th:"เด็ก/อ่อนวัย",en:"young"},{th:"แก่",en:"old"},{th:"ใหม่",en:"new"},{th:"ดี",en:"good"},{th:"แย่",en:"bad"},
+{th:"ร้อน",en:"hot"},{th:"หนาว",en:"cold"},{th:"อบอุ่น",en:"warm"},{th:"เย็น",en:"cool"},{th:"เร็ว",en:"fast"},
+{th:"ช้า",en:"slow"},{th:"หนัก",en:"heavy"},{th:"เบา",en:"light"},{th:"แข็งแรง",en:"strong"},{th:"อ่อนแอ",en:"weak"},
+{th:"มีความสุข",en:"happy"},{th:"เศร้า",en:"sad"},{th:"โกรธ",en:"angry"},{th:"กลัว",en:"afraid"},{th:"เหนื่อย",en:"tired"},
+{th:"หิว",en:"hungry"},{th:"อิ่ม",en:"full"},{th:"สะอาด",en:"clean"},{th:"สกปรก",en:"dirty"},{th:"รวย",en:"rich"},
+{th:"จน",en:"poor"},{th:"แพง",en:"expensive"},{th:"ถูก",en:"cheap"},{th:"สวย",en:"beautiful"},{th:"น่าเกลียด",en:"ugly"},
+{th:"ใจดี",en:"kind"},{th:"ใจร้าย",en:"mean"},{th:"ตลก",en:"funny"},{th:"จริงจัง",en:"serious"},{th:"เป็นมิตร",en:"friendly"},
+{th:"ขี้เกียจ",en:"lazy"},{th:"ฉลาด",en:"smart"},{th:"หลักแหลม",en:"clever"},{th:"กล้าหาญ",en:"brave"},{th:"ขี้อาย",en:"shy"},
+{th:"เสียงดัง",en:"noisy"},{th:"เงียบ",en:"quiet"},{th:"นุ่ม",en:"soft"},{th:"แข็ง",en:"hard"},{th:"อร่อย",en:"delicious"}
+];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const el={start:document.getElementById('start'),game:document.getElementById('game'),result:document.getElementById('result'),
+playerName:document.getElementById('playerName'),helloBadge:document.getElementById('helloBadge'),
+progressText:document.getElementById('progressText'),timer:document.getElementById('timer'),thaiWord:document.getElementById('thaiWord'),
+choices:document.getElementById('choices'),scoreBig:document.getElementById('scoreBig'),summary:document.getElementById('summary')};
+let order=[],idx=0,score=0,interval,timeLeft=10;
+function goMenu(){const name=el.playerName.value.trim();if(!name){alert('กรุณากรอกชื่อ');return;}el.start.style.display='none';el.game.style.display='block';el.helloBadge.textContent=`สวัสดี, ${name} ✨`;startGame();}
+function resetAll(){clearInterval(interval);el.playerName.value='';el.result.style.display='none';el.game.style.display='none';el.start.style.display='block';}
+function startGame(){order=Array.from(DATA.keys());shuffle(order);idx=0;score=0;loadQuestion();}
+function loadQuestion(){clearInterval(interval);timeLeft=10;el.timer.textContent=`⏱️ ${timeLeft}`;const qIndex=order[idx];const item=DATA[qIndex];el.progressText.textContent=`ข้อ ${idx+1}/${DATA.length}`;el.thaiWord.textContent=item.th;const others=DATA.filter((_,i)=>i!==qIndex).map(x=>x.en);shuffle(others);const options=shuffle([item.en,...others.slice(0,3)]);el.choices.innerHTML='';options.forEach(opt=>{const b=document.createElement('button');b.className='choice';b.textContent=opt;b.onclick=()=>submit(opt,item.en,b);el.choices.appendChild(b);});interval=setInterval(()=>{timeLeft--;el.timer.textContent=`⏱️ ${timeLeft}`;if(timeLeft<=0){clearInterval(interval);lockChoices(item.en,null);nextAfterDelay();}},1000);}
+function submit(ans,correct,btn){clearInterval(interval);const isCorrect=ans===correct;if(isCorrect){score++;btn.classList.add('correct');}else{btn.classList.add('wrong');}lockChoices(correct,btn);nextAfterDelay();}
+function lockChoices(correct,clickedBtn){const all=[...el.choices.querySelectorAll('.choice')];all.forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add('correct');});}
+function nextAfterDelay(){setTimeout(()=>{idx++;if(idx>=DATA.length){finish();}else{loadQuestion();}},800);}
+function finish(){el.game.style.display='none';el.result.style.display='block';el.scoreBig.textContent=`คุณได้ ${score}/${DATA.length} คะแนน`;const pct=Math.round((score/DATA.length)*100);el.summary.textContent=`คิดเป็น ${pct}% เกณฑ์แนะนำ: ≥ 80% เก่งมาก!`;}
+</script>
+</body>
+</html>
